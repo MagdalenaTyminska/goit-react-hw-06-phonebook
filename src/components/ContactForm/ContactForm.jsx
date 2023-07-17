@@ -1,62 +1,69 @@
-import React, { useState } from 'react';
-import PropTypes from 'prop-types';
-import InputField from './InputField/InputField'; // Update the import statement
+import React, { useEffect } from 'react';
 import css from './ContactForm.module.css';
+import { useDispatch, useSelector } from 'react-redux';
+import { addContact } from '../../redux/contactsSlice';
+import { getContacts } from 'redux/selectors';
 
-const ContactForm = ({ onSubmit }) => {
-  const [name, setName] = useState('');
-  const [number, setNumber] = useState('');
-
-  const handleChange = event => {
-    const { name, value } = event.target;
-    if (name === 'name') {
-      setName(value);
-    } else if (name === 'number') {
-      setNumber(value);
-    }
-  };
+const ContactForm = () => {
+  const dispatch = useDispatch();
+  const contacts = useSelector(getContacts);
 
   const handleSubmit = event => {
     event.preventDefault();
-    onSubmit({ event, name, number });
-    setName('');
-    setNumber('');
+    const form = event.currentTarget;
+    const name = form.elements.name.value;
+    const number = form.elements.number.value;
+    const nameExist = contacts.find(contact => contact.name === name);
+    const numberExist = contacts.find(contact => contact.number === number);
+
+    if (nameExist) {
+      alert(`${name} is already in contacts`);
+    } else if (numberExist) {
+      alert(`This number ${number} is already in contacts`);
+    } else {
+      dispatch(addContact(name, number));
+    }
+    form.reset();
   };
+
+  useEffect(() => {
+    const storedContacts = localStorage.getItem('contacts');
+    if (storedContacts) {
+      const parsedContacts = JSON.parse(storedContacts);
+      dispatch(addContact(parsedContacts));
+    }
+  }, [dispatch]);
+
+  useEffect(() => {
+    localStorage.setItem('contacts', JSON.stringify(contacts));
+  }, [contacts]);
 
   return (
     <form className={css.contactFormTable} onSubmit={handleSubmit}>
-      <InputField
+      <label className={css.contactFormLabel}>name</label>
+      <input
+        className={css.contactFormInput}
         label="name"
         type="text"
         name="name"
-        pattern="^[a-zA-Zа-яА-Я]+(([' -][a-zA-Zа-яА-Я
-                ])?[a-zA-Zа-яА-Я]*)*$"
-        title="Name may contain only letters,
-                apostrophe, dash and spaces. For example Adrian, Jacob Mercer,
-                Charles de Batz de Castelmore d'Artagnan"
-        required={true}
-        value={name}
-        onChange={handleChange}
+        pattern="^[a-zA-Zа-яА-Я]+(([' -][a-zA-Zа-яА-Я ])?[a-zA-Zа-яА-Я]*)*$"
+        required
       />
-      <InputField
+      <label className={css.contactFormLabel}>number</label>
+      <input
+        className={css.contactFormInput}
         label="number"
         type="tel"
         name="number"
         pattern="\+?\d{1,4}?[-.\s]?\(?\d{1,3}?\)?[-.\s]?\d{1,4}[-.\s]?\d{1,4}[-.\s]?\d{1,9}"
-        title="Phone number must be digits and can contain spaces, dashes, parentheses and can start with +"
-        required={true}
-        value={number}
-        onChange={handleChange}
+        required
       />
+
       <button type="submit" className={css.contactFormButton}>
         Add contact
       </button>
     </form>
   );
-};
-
-ContactForm.propTypes = {
-  onSubmit: PropTypes.func.isRequired,
 };
 
 export default ContactForm;
