@@ -1,31 +1,36 @@
-import React, { useState } from 'react';
+import React from 'react';
 import css from './ContactForm.module.css';
+import { useDispatch, useSelector } from 'react-redux';
+import { addContact } from 'redux/contactsSlice';
+import { getContacts } from 'redux/selectors';
 
-const ContactForm = ({ onSubmit }) => {
-  const [name, setName] = useState('');
-  const [number, setNumber] = useState('');
+const ContactForm = () => {
+  const dispatch = useDispatch();
+  const contacts = useSelector(getContacts);
 
-  const handleChange = event => {
-    const { name, value } = event.target;
-    if (name === 'name') {
-      setName(value);
-    } else if (name === 'number') {
-      setNumber(value);
+  const handleSubmit = evt => {
+    evt.preventDefault();
+    const form = evt.currentTarget;
+    const name = form.elements.name.value;
+    const number = form.elements.number.value;
+
+    const existingContact = contacts.find(
+      contact => contact.name.toLowerCase() === name.toLowerCase()
+    );
+
+    if (existingContact) {
+      alert(`${name} is already in contacts`);
+      return;
     }
-  };
 
-  const handleSubmit = event => {
-    event.preventDefault();
-    onSubmit({ event, name, number });
-    setName('');
-    setNumber('');
+    dispatch(addContact(name, number));
+    form.reset();
   };
 
   return (
     <form className={css.contactFormTable} onSubmit={handleSubmit}>
       <label className={css.contactFormLabel}>name</label>
       <input
-        onChange={handleChange}
         className={css.contactFormInput}
         label="name"
         type="text"
@@ -35,7 +40,6 @@ const ContactForm = ({ onSubmit }) => {
       />
       <label className={css.contactFormLabel}>number</label>
       <input
-        onChange={handleChange}
         className={css.contactFormInput}
         label="number"
         type="tel"
