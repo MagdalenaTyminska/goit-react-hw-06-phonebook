@@ -1,47 +1,31 @@
-import React, { useEffect } from 'react';
+import React, { useState } from 'react';
 import css from './ContactForm.module.css';
-import { useDispatch, useSelector } from 'react-redux';
-import { addContact } from '../../redux/contactsSlice';
-import { getContacts } from 'redux/selectors';
 
-const ContactForm = () => {
-  const dispatch = useDispatch();
-  const contacts = useSelector(getContacts);
+const ContactForm = ({ onSubmit }) => {
+  const [name, setName] = useState('');
+  const [number, setNumber] = useState('');
+
+  const handleChange = event => {
+    const { name, value } = event.target;
+    if (name === 'name') {
+      setName(value);
+    } else if (name === 'number') {
+      setNumber(value);
+    }
+  };
 
   const handleSubmit = event => {
     event.preventDefault();
-    const form = event.currentTarget;
-    const name = form.elements.name.value;
-    const number = form.elements.number.value;
-    const nameExist = contacts.find(contact => contact.name === name);
-    const numberExist = contacts.find(contact => contact.number === number);
-
-    if (nameExist) {
-      alert(`${name} is already in contacts`);
-    } else if (numberExist) {
-      alert(`This number ${number} is already in contacts`);
-    } else {
-      dispatch(addContact(name, number));
-    }
-    form.reset();
+    onSubmit({ event, name, number });
+    setName('');
+    setNumber('');
   };
-
-  useEffect(() => {
-    const storedContacts = localStorage.getItem('contacts');
-    if (storedContacts) {
-      const parsedContacts = JSON.parse(storedContacts);
-      dispatch(addContact(parsedContacts));
-    }
-  }, [dispatch]);
-
-  useEffect(() => {
-    localStorage.setItem('contacts', JSON.stringify(contacts));
-  }, [contacts]);
 
   return (
     <form className={css.contactFormTable} onSubmit={handleSubmit}>
       <label className={css.contactFormLabel}>name</label>
       <input
+        onChange={handleChange}
         className={css.contactFormInput}
         label="name"
         type="text"
@@ -51,6 +35,7 @@ const ContactForm = () => {
       />
       <label className={css.contactFormLabel}>number</label>
       <input
+        onChange={handleChange}
         className={css.contactFormInput}
         label="number"
         type="tel"
