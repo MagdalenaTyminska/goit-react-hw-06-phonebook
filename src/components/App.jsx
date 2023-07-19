@@ -53,6 +53,13 @@ export const App = () => {
     setFilter(value);
   };
 
+  const handleRemove = event => {
+    const { id } = event.target;
+    const updatedContacts = contacts.filter(contact => contact.id !== id);
+    setContacts(updatedContacts);
+    updateLocalStorage(updatedContacts);
+  };
+
   return (
     <>
       <div className={css.boxApp}>
@@ -61,7 +68,11 @@ export const App = () => {
         </Section>
         <Section title="Contacts">
           <Filter handleSearch={handleSearch} filter={filter} />
-          <ContactList contacts={contacts} filter={filter} />
+          <ContactList
+            handleRemove={handleRemove}
+            contacts={contacts}
+            filter={filter}
+          />
         </Section>
       </div>
     </>

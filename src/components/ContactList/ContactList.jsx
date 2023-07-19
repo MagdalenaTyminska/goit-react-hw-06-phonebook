@@ -2,11 +2,6 @@ import React from 'react';
 import css from './ContactList.module.css';
 
 const ContactList = ({ filter, contacts, handleRemove }) => {
-  const handleDeleteClick = event => {
-    const { id } = event.target;
-    handleRemove(id);
-  };
-
   return (
     <>
       <ul className={css.list}>
@@ -26,7 +21,7 @@ const ContactList = ({ filter, contacts, handleRemove }) => {
                 className={css.contactListButton}
                 id={contact.id}
                 type="button"
-                onClick={handleDeleteClick}
+                onClick={handleRemove}
               >
                 Delete
               </button>
