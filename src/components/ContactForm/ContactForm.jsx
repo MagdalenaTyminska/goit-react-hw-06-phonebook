@@ -8,23 +8,23 @@ const ContactForm = () => {
   const dispatch = useDispatch();
   const contacts = useSelector(getContacts);
 
-  const handleSubmit = evt => {
-    evt.preventDefault();
-    const form = evt.currentTarget;
+  const handleSubmit = event => {
+    event.preventDefault();
+    const form = event.currentTarget;
     const name = form.elements.name.value;
     const number = form.elements.number.value;
 
-    const existingContact = contacts.find(
-      contact => contact.name.toLowerCase() === name.toLowerCase()
-    );
+    const nameExist = contacts.find(contact => contact.name === name);
+    const numberExist = contacts.find(contact => contact.number === number);
 
-    if (existingContact) {
+    if (nameExist) {
       alert(`${name} is already in contacts`);
-      return;
+    } else if (numberExist) {
+      alert(`This number ${number} is already in contacts`);
+    } else {
+      dispatch(addContact(name, number));
+      form.reset();
     }
-
-    dispatch(addContact(name, number));
-    form.reset();
   };
 
   return (
